@@ -70,6 +70,7 @@ function summarizeDatasetSignals(dataset, requestData) {
 function buildPrompt(signalSummary) {
   return [
     'System: You are generating explanatory context, not making decisions.',
+    'Constraints: Output 2-3 plain-text sentences. No bullets, no JSON, no markdown.',
     `Dataset context: ${signalSummary.summary}`,
     `Request signals: city=${signalSummary.city || 'unknown'}, industry=${signalSummary.industry || 'unknown'}, materials=${signalSummary.materials.length ? signalSummary.materials.join(', ') : 'unknown'}.`,
     'Task: Summarize global and regional waste context, identify demand signals, and mention sustainability considerations.',

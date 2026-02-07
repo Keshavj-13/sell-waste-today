@@ -49,6 +49,7 @@ function summarizeBehavior(dataset, requestData) {
 function buildPrompt(summary) {
   return [
     'System: You are generating explanatory context, not making decisions.',
+    'Constraints: Output 2-3 plain-text sentences. No bullets, no JSON, no markdown.',
     `Dataset context: ${summary.summary}`,
     `Request signals: companySize=${summary.companySize}, riskAppetite=${summary.riskAppetite}, industry=${summary.industry}.`,
     'Task: Generate a short adaptive reasoning message tailored to the company profile.',

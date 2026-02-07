@@ -34,23 +34,36 @@ function validateRequest(body) {
   }
   
   // Validate enum values if present
-  if (body.companySize && !['SME', 'enterprise'].includes(body.companySize)) {
-    errors.push('companySize must be either "SME" or "enterprise"');
+  if (body.companySize && !['SME', 'enterprise', 'Small', 'Medium', 'Large'].includes(body.companySize)) {
+    errors.push('companySize must be either "SME", "enterprise", "Small", "Medium", or "Large"');
   }
   
-  if (body.industry && !['retail', 'pharma', 'FMCG', 'manufacturing', 'other'].includes(body.industry)) {
-    errors.push('industry must be one of: retail, pharma, FMCG, manufacturing, other');
+  if (body.industry && ![
+    'retail',
+    'pharma',
+    'FMCG',
+    'manufacturing',
+    'other',
+    'hospitality',
+    'healthcare',
+    'food_service',
+    'construction',
+    'textiles',
+    'electronics',
+    'automotive'
+  ].includes(body.industry)) {
+    errors.push('industry must be one of: retail, pharma, FMCG, manufacturing, other, hospitality, healthcare, food_service, construction, textiles, electronics, automotive');
   }
   
-  if (body.riskAppetite && !['cost', 'reliability', 'sustainability'].includes(body.riskAppetite)) {
-    errors.push('riskAppetite must be one of: cost, reliability, sustainability');
+  if (body.riskAppetite && !['cost', 'reliability', 'sustainability', 'balanced', 'compliance'].includes(body.riskAppetite)) {
+    errors.push('riskAppetite must be one of: cost, reliability, sustainability, balanced, compliance');
   }
   
   return errors;
 }
 
 // POST /api/sell-waste-today
-router.post('/sell-waste-today', (req, res) => {
+router.post('/sell-waste-today', async (req, res) => {
   try {
     // Generate unique request ID
     const requestId = generateRequestId();
@@ -73,10 +86,10 @@ router.post('/sell-waste-today', (req, res) => {
     // Execute the decision pipeline in order
     
     // Layer 1: Global Context Intelligence Agent
-    const globalContext = analyzeGlobalContext(normalizedRequest, rng);
+    const globalContext = await analyzeGlobalContext(normalizedRequest, rng);
     
     // Layer 2: Personalized Decision Agent
-    const personalizedDecision = generatePersonalizedDecision(normalizedRequest, globalContext, rng);
+    const personalizedDecision = await generatePersonalizedDecision(normalizedRequest, globalContext, rng);
     
     // Optimization Layer
     const { optimization, pickup } = optimizePickup(normalizedRequest, globalContext, personalizedDecision, rng);

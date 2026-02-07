@@ -22,23 +22,36 @@ function validateRequest(body) {
     errors.push('wasteItems must be a non-empty array');
   }
   
-  if (body.companySize && !['SME', 'enterprise'].includes(body.companySize)) {
-    errors.push('companySize must be either "SME" or "enterprise"');
+  if (body.companySize && !['SME', 'enterprise', 'Small', 'Medium', 'Large'].includes(body.companySize)) {
+    errors.push('companySize must be either "SME", "enterprise", "Small", "Medium", or "Large"');
   }
   
-  if (body.industry && !['retail', 'pharma', 'FMCG', 'manufacturing', 'other'].includes(body.industry)) {
-    errors.push('industry must be one of: retail, pharma, FMCG, manufacturing, other');
+  if (body.industry && ![
+    'retail',
+    'pharma',
+    'FMCG',
+    'manufacturing',
+    'other',
+    'hospitality',
+    'healthcare',
+    'food_service',
+    'construction',
+    'textiles',
+    'electronics',
+    'automotive'
+  ].includes(body.industry)) {
+    errors.push('industry must be one of: retail, pharma, FMCG, manufacturing, other, hospitality, healthcare, food_service, construction, textiles, electronics, automotive');
   }
   
-  if (body.riskAppetite && !['cost', 'reliability', 'sustainability'].includes(body.riskAppetite)) {
-    errors.push('riskAppetite must be one of: cost, reliability, sustainability');
+  if (body.riskAppetite && !['cost', 'reliability', 'sustainability', 'balanced', 'compliance'].includes(body.riskAppetite)) {
+    errors.push('riskAppetite must be one of: cost, reliability, sustainability, balanced, compliance');
   }
   
   return errors;
 }
 
 // Process request function
-function processSellWasteRequest(requestBody) {
+async function processSellWasteRequest(requestBody) {
   console.log('\n' + '='.repeat(70));
   console.log('PROCESSING REQUEST');
   console.log('='.repeat(70));
@@ -79,13 +92,13 @@ function processSellWasteRequest(requestBody) {
   
   // Layer 1
   console.log('1️⃣  Calling Layer 1: Global Context Intelligence Agent...');
-  const globalContext = analyzeGlobalContext(normalizedRequest, rng);
+  const globalContext = await analyzeGlobalContext(normalizedRequest, rng);
   console.log('   ✓ Completed');
   console.log('');
   
   // Layer 2
   console.log('2️⃣  Calling Layer 2: Personalized Decision Agent...');
-  const personalizedDecision = generatePersonalizedDecision(normalizedRequest, globalContext, rng);
+  const personalizedDecision = await generatePersonalizedDecision(normalizedRequest, globalContext, rng);
   console.log('   ✓ Completed');
   console.log('');
   
@@ -129,104 +142,110 @@ function processSellWasteRequest(requestBody) {
   return response;
 }
 
-// Test cases
-console.log('\n\n');
-console.log('█'.repeat(70));
-console.log('  SELL WASTE TODAY API - TEST EXECUTION');
-console.log('█'.repeat(70));
+async function runTests() {
+  // Test cases
+  console.log('\n\n');
+  console.log('█'.repeat(70));
+  console.log('  SELL WASTE TODAY API - TEST EXECUTION');
+  console.log('█'.repeat(70));
 
-// Test 1: Valid request
-console.log('\n\nTEST 1: Valid Request (Retail SME, Cost-focused)');
-const test1 = {
-  companyId: 'ACME-RETAIL-001',
-  companySize: 'SME',
-  industry: 'retail',
-  riskAppetite: 'cost',
-  wasteItems: [
-    {
-      material: 'cardboard boxes',
-      quantity: 350,
-      unit: 'kg',
-      location: {
-        lat: 40.7128,
-        lon: -74.0060,
-        address: '450 Broadway, New York, NY 10013'
+  // Test 1: Valid request
+  console.log('\n\nTEST 1: Valid Request (Retail SME, Cost-focused)');
+  const test1 = {
+    companyId: 'ACME-RETAIL-001',
+    companySize: 'SME',
+    industry: 'retail',
+    riskAppetite: 'cost',
+    wasteItems: [
+      {
+        material: 'cardboard boxes',
+        quantity: 350,
+        unit: 'kg',
+        location: {
+          lat: 40.7128,
+          lon: -74.0060,
+          address: '450 Broadway, New York, NY 10013'
+        }
       }
-    }
-  ]
-};
-processSellWasteRequest(test1);
+    ]
+  };
+  await processSellWasteRequest(test1);
 
-// Test 2: Multiple waste items
-console.log('\n\nTEST 2: Multiple Waste Items (Enterprise Manufacturing)');
-const test2 = {
-  companyId: 'FACTORY-XYZ-789',
-  companySize: 'enterprise',
-  industry: 'manufacturing',
-  riskAppetite: 'sustainability',
-  wasteItems: [
-    {
-      material: 'metal scrap',
-      quantity: 2.5,
-      unit: 'tons',
-      location: {
-        lat: 51.5074,
-        lon: -0.1278,
-        address: 'Industrial Park A, London, UK'
+  // Test 2: Multiple waste items
+  console.log('\n\nTEST 2: Multiple Waste Items (Enterprise Manufacturing)');
+  const test2 = {
+    companyId: 'FACTORY-XYZ-789',
+    companySize: 'enterprise',
+    industry: 'manufacturing',
+    riskAppetite: 'sustainability',
+    wasteItems: [
+      {
+        material: 'metal scrap',
+        quantity: 2.5,
+        unit: 'tons',
+        location: {
+          lat: 51.5074,
+          lon: -0.1278,
+          address: 'Industrial Park A, London, UK'
+        }
+      },
+      {
+        material: 'plastic waste',
+        quantity: 1.8,
+        unit: 'tons',
+        location: {
+          lat: 51.5155,
+          lon: -0.1426,
+          address: 'Industrial Park B, London, UK'
+        }
       }
-    },
-    {
-      material: 'plastic waste',
-      quantity: 1.8,
-      unit: 'tons',
-      location: {
-        lat: 51.5155,
-        lon: -0.1426,
-        address: 'Industrial Park B, London, UK'
+    ]
+  };
+  await processSellWasteRequest(test2);
+
+  // Test 3: Invalid request (invalid companySize)
+  console.log('\n\nTEST 3: Invalid Request (Invalid companySize)');
+  const test3 = {
+    companyId: 'BAD-CO-123',
+    companySize: 'mid-market',
+    wasteItems: [
+      {
+        material: 'cardboard',
+        quantity: 100,
+        unit: 'kg',
+        location: {
+          lat: 40.7128,
+          lon: -74.0060,
+          address: 'Test Address'
+        }
       }
-    }
-  ]
-};
-processSellWasteRequest(test2);
+    ]
+  };
+  await processSellWasteRequest(test3);
 
-// Test 3: Invalid request (invalid companySize)
-console.log('\n\nTEST 3: Invalid Request (Invalid companySize)');
-const test3 = {
-  companyId: 'BAD-CO-123',
-  companySize: 'mid-market',
-  wasteItems: [
-    {
-      material: 'cardboard',
-      quantity: 100,
-      unit: 'kg',
-      location: {
-        lat: 40.7128,
-        lon: -74.0060,
-        address: 'Test Address'
-      }
-    }
-  ]
-};
-processSellWasteRequest(test3);
+  // Test 4: Empty request (defaults + warnings)
+  console.log('\n\nTEST 4: Empty Request (Defaults Applied)');
+  const test4 = {};
+  await processSellWasteRequest(test4);
 
-// Test 4: Empty request (defaults + warnings)
-console.log('\n\nTEST 4: Empty Request (Defaults Applied)');
-const test4 = {};
-processSellWasteRequest(test4);
+  console.log('\n\n');
+  console.log('█'.repeat(70));
+  console.log('  ALL TESTS COMPLETED');
+  console.log('█'.repeat(70));
+  console.log('\n');
+  console.log('Summary:');
+  console.log('✓ The API executes end-to-end with realistic variability');
+  console.log('✓ All layers are invoked in correct order');
+  console.log('✓ Validation works correctly');
+  console.log('✓ Response format matches specification');
+  console.log('✓ Clear extension points marked with TODO comments');
+  console.log('\nTo run as a live server:');
+  console.log('  1. Install dependencies: npm install');
+  console.log('  2. Start server: npm start');
+  console.log('  3. Make POST requests to: http://localhost:3000/api/sell-waste-today');
+  console.log('');
+}
 
-console.log('\n\n');
-console.log('█'.repeat(70));
-console.log('  ALL TESTS COMPLETED');
-console.log('█'.repeat(70));
-console.log('\n');
-console.log('Summary:');
-console.log('✓ The API executes end-to-end with realistic variability');
-console.log('✓ All layers are invoked in correct order');
-console.log('✓ Validation works correctly');
-console.log('✓ Response format matches specification');
-console.log('✓ Clear extension points marked with TODO comments');
-console.log('\nTo run as a live server:');
-console.log('  1. Install dependencies: npm install');
-console.log('  2. Start server: npm start');
-console.log('  3. Make POST requests to: http://localhost:3000/api/sell-waste-today');
-console.log('');
+runTests().catch((error) => {
+  console.error('Test execution failed:', error);
+});
