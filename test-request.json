@@ -1,0 +1,28 @@
+{
+  "companyId": "ACME-RETAIL-001",
+  "companySize": "SME",
+  "industry": "retail",
+  "riskAppetite": "cost",
+  "wasteItems": [
+    {
+      "material": "cardboard boxes",
+      "quantity": 350,
+      "unit": "kg",
+      "location": {
+        "lat": 40.7128,
+        "lon": -74.0060,
+        "address": "450 Broadway, New York, NY 10013"
+      }
+    },
+    {
+      "material": "plastic wrap",
+      "quantity": 120,
+      "unit": "kg",
+      "location": {
+        "lat": 40.7580,
+        "lon": -73.9855,
+        "address": "Times Square, New York, NY 10036"
+      }
+    }
+  ]
+}
